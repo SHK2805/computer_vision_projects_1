@@ -1,8 +1,8 @@
 # Split RGB
 
-* The application demonstrates how to split an RGB image into its three channels: Red, Green, and Blue.
-* The application uses the OpenCV library to read and display the image.
-* The application uses the OpenCV library to split the image into its three channels.
-* The application access the web camera to capture the frames
-* The application uses the OpenCV library to split the frame into its three channels.
-* The application displays the three channels in separate 4 stacks in same windows.
+* Below are the steps the application does
+* Open the web camera on the given camera number
+* Reads the frames
+* Splits the frames into R G B channels
+* Stacks the frames with the original frame into 4 sub-windows
+* Shows all the frames in a single window with two-channel frames on top and two-channel frames in the bottom 
