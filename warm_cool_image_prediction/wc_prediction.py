@@ -18,7 +18,9 @@ class WarmCoolPredictor:
 
     # get the file names in the images directory
     def get_files(self):
-        return os.listdir(self.image_dir_path)
+        # get files with .jpg, .jpeg, .png, .gif extensions
+        return [file for file in os.listdir(self.image_dir_path)
+                if file.endswith(('.jpg', '.jpeg', '.png', '.gif'))]
 
     # get the image
     def get_image(self, image_name: str):
@@ -40,9 +42,11 @@ class WarmCoolPredictor:
     def get_warm_cool_mask(self, image_name: str):
         hue_channel = self.get_hue_channel(image_name)
         # create a mask for warm colors
-        warm_mask = cv2.inRange(hue_channel, 0, 60)
+        warm_mask = hue_channel < 60
+        # warm_mask = cv2.inRange(hue_channel, 0, 60)
         # create a mask for cool colors
-        cool_mask = cv2.inRange(hue_channel, 90, 180)
+        cool_mask = (hue_channel > 90) & (hue_channel <= 180)
+        # cool_mask = cv2.inRange(hue_channel, 90, 180)
         return hue_channel, warm_mask, cool_mask
 
     # get warm cool percentage
@@ -81,8 +85,15 @@ class WarmCoolPredictor:
         else:
             return "Neutral"
 
+    # loop through the images in the images directory
+    def loop_images(self):
+        for image_name in self.get_files():
+            logger.info(f"Predicting image: {image_name}")
+            prediction = self.predict_image(image_name)
+            logger.info(f"The image {image_name} is: {prediction}")
+            logger.info("*" * 50)
+
 if __name__ == "__main__":
     wc_predictor = WarmCoolPredictor()
-    result = wc_predictor.predict_image("test_image.png")
-    logger.info(f"The image is: {result}")
+    wc_predictor.loop_images()
 

@@ -171,3 +171,4 @@ cython_debug/
 .pypirc
 /.idea
 .DS_Store
+/warm_cool_image_prediction/images
