@@ -1,6 +1,7 @@
 pillow
 opencv-python
 piexif
+scikit-learn
 matplotlib
 seaborn
 numpy
@@ -8,3 +9,4 @@ Flask
 flask-cors
 flask_limiter
 werkzeug
+torch
