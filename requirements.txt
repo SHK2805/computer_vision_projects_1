@@ -4,6 +4,7 @@ piexif
 scikit-learn
 matplotlib
 seaborn
+pandas
 numpy
 Flask
 flask-cors
