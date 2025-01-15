@@ -1,8 +1,10 @@
 import os
 
 import torch
+from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 class TestData:
     def __init__(self):
@@ -24,15 +26,15 @@ class TestData:
         return self.data_list
 
 class NumericalDataset(Dataset):
-    def __init__(self, data, labels):
-        if isinstance(data, pd.DataFrame):
-            self.data=data.values
+    def __init__(self, input_data, input_labels):
+        if isinstance(input_data, pd.DataFrame):
+            input_data = input_data.values
 
-        if isinstance(labels, pd.Series):
-            self.labels=labels.values
+        if isinstance(input_labels, pd.Series):
+            input_labels = input_labels.values
 
-        self.data = torch.tensor(data, dtype=torch.float32)
-        self.labels = torch.tensor(labels, dtype=torch.long)
+        self.data = torch.FloatTensor(input_data)
+        self.labels = torch.LongTensor(input_labels)
 
     def __len__(self):
         return len(self.data)
@@ -40,17 +42,50 @@ class NumericalDataset(Dataset):
     def __getitem__(self, idx):
         return self.data[idx], self.labels[idx]
 
-
-if __name__ == '__main__':
-    data_file_path: str = 'data/data.csv'
+def get_data_loader(data_file_path: str = '../data/data.csv'):
     if not os.path.exists(data_file_path):
         raise FileNotFoundError(f'Data file not found: {data_file_path}')
-    df = pd.read_csv('data/data.csv')
+    df = pd.read_csv(data_file_path)
     # drop Address column
     df = df.drop('Address', axis=1)
     # split data into X and y
     X = df.drop('Price', axis=1)
     y = df['Price']
+
+    # split the data into train, test and validation sets
+    train_test_split_ratio = 0.2
+    test_validation_split_ratio = 0.5
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=train_test_split_ratio, random_state=42)
+    X_test, X_val, y_test, y_val = train_test_split(X_test, y_test, test_size=test_validation_split_ratio, random_state=42)
+
+    # standard scalar
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    X_val = scaler.transform(X_val)
+
+    # create train, test and validation datasets
+    train_dataset = NumericalDataset(X_train, y_train)
+    test_dataset = NumericalDataset(X_test, y_test)
+    val_dataset = NumericalDataset(X_val, y_val)
+
+    # data loader
+    train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
+    val_loader = DataLoader(val_dataset, batch_size=2, shuffle=False)
+
+    return train_loader, test_loader, val_loader
+
+
+
+if __name__ == '__main__':
+    # get the dataloader
+    train, test, val = get_data_loader()
+    # print the data
+    for data, labels in train:
+        print(f"Data shape: {data.shape}, Labels shape: {labels.shape}")
+
+
 
 
 
